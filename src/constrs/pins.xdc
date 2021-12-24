@@ -1,0 +1,7 @@
+set_property PACKAGE_PIN W10 [get_ports {pcie_ref_clk_clk_p[0]}]
+set_property PACKAGE_PIN W6 [get_ports {pcie_7x_mgt_rtl_rxp[3]}]
+set_property PACKAGE_PIN V8 [get_ports {pcie_7x_mgt_rtl_rxp[2]}]
+set_property PACKAGE_PIN U6 [get_ports {pcie_7x_mgt_rtl_rxp[1]}]
+set_property PACKAGE_PIN T8 [get_ports {pcie_7x_mgt_rtl_rxp[0]}]
+set_property IOSTANDARD LVCMOS18 [get_ports sys_nrst]
+set_property PACKAGE_PIN A23 [get_ports sys_nrst]
