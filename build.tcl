@@ -15,27 +15,9 @@
 #   run results please launch the synthesis/implementation runs as needed.
 #
 #*****************************************************************************************
-# NOTE: In order to use this script for source control purposes, please make sure that the
-#       following files are added to the source control system:-
-#
-# 1. This project restoration tcl script (build.tcl) that was generated.
-#
-# 2. The following source(s) files that were local or imported into the original project.
-#    (Please see the '$orig_proj_dir' and '$origin_dir' variable setting below at the start of the script)
-#
-#    "D:/PrjXilinx/git_vivado_demo/git_vivado_demo/git_vivado_demo.srcs/sources_1/bd/git_vivado_demo_bd/git_vivado_demo_bd.bd"
-#    "D:/PrjXilinx/git_vivado_demo/git_vivado_demo/git_vivado_demo.srcs/sources_1/bd/git_vivado_demo_bd/hdl/git_vivado_demo_bd_wrapper.v"
-#    "d:/PrjXilinx/git_vivado_demo/git_vivado_demo/git_vivado_demo.srcs/sources_1/bd/git_vivado_demo_bd/ip/git_vivado_demo_bd_mig_7series_0_0/mig_a.prj"
-#
-# 3. The following remote source files that were added to the original project:-
-#
-#    "D:/PrjXilinx/git_vivado_demo/src/constrs/pins.xdc"
-#    "D:/PrjXilinx/git_vivado_demo/src/constrs/timing.xdc"
-#
-#*****************************************************************************************
 
 # Set the reference directory for source file relative paths (by default the value is script directory path)
-set origin_dir "."
+set origin_dir [file dirname [info script]]
 
 # Use origin directory path location variable, if specified in the tcl shell
 if { [info exists ::origin_dir_loc] } {
@@ -102,7 +84,7 @@ if { $::argc > 0 } {
 set orig_proj_dir "[file normalize "$origin_dir/git_vivado_demo"]"
 
 # Create project
-create_project ${_xil_proj_name_} ./${_xil_proj_name_} -part xc7vx690tffg1927-2
+create_project ${_xil_proj_name_} $origin_dir/${_xil_proj_name_} -part xc7vx690tffg1927-2
 
 # Set the directory path for the new project
 set proj_dir [get_property directory [current_project]]
@@ -133,32 +115,37 @@ set_property "ip_repo_paths" "[file normalize "$origin_dir/ip_repo"]" $obj
 # Rebuild user ip_repo's index before adding any source files
 update_ip_catalog -rebuild
 
-# Set 'sources_1' fileset object
-set obj [get_filesets sources_1]
-# Import local files from the original project
-set files [list \
- [file normalize "${origin_dir}/git_vivado_demo/git_vivado_demo.srcs/sources_1/bd/git_vivado_demo_bd/git_vivado_demo_bd.bd" ]\
- [file normalize "${origin_dir}/git_vivado_demo/git_vivado_demo.srcs/sources_1/bd/git_vivado_demo_bd/hdl/git_vivado_demo_bd_wrapper.v" ]\
- [file normalize "${origin_dir}/git_vivado_demo/git_vivado_demo.srcs/sources_1/bd/git_vivado_demo_bd/ip/git_vivado_demo_bd_mig_7series_0_0/mig_a.prj" ]\
-]
-set imported_files [import_files -fileset sources_1 $files]
+# # Set 'sources_1' fileset object
+# set obj [get_filesets sources_1]
+# # Import local files from the original project
+# set files [list \
+#  [file normalize "${origin_dir}/git_vivado_demo/git_vivado_demo.srcs/sources_1/bd/git_vivado_demo_bd/git_vivado_demo_bd.bd" ]\
+#  [file normalize "${origin_dir}/git_vivado_demo/git_vivado_demo.srcs/sources_1/bd/git_vivado_demo_bd/hdl/git_vivado_demo_bd_wrapper.v" ]\
+#  [file normalize "${origin_dir}/git_vivado_demo/git_vivado_demo.srcs/sources_1/bd/git_vivado_demo_bd/ip/git_vivado_demo_bd_mig_7series_0_0/mig_a.prj" ]\
+# ]
+# set imported_files [import_files -fileset sources_1 $files]
 
 # Set 'sources_1' fileset file properties for remote files
 # None
 
-# Set 'sources_1' fileset file properties for local files
-set file "git_vivado_demo_bd/git_vivado_demo_bd.bd"
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-set_property -name "registered_with_manager" -value "1" -objects $file_obj
+# # Set 'sources_1' fileset file properties for local files
+# set file "git_vivado_demo_bd/git_vivado_demo_bd.bd"
+# set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
+# set_property -name "registered_with_manager" -value "1" -objects $file_obj
 
-set file "git_vivado_demo_bd_mig_7series_0_0/mig_a.prj"
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
-set_property -name "scoped_to_cells" -value "git_vivado_demo_bd_mig_7series_0_0" -objects $file_obj
+# set file "git_vivado_demo_bd_mig_7series_0_0/mig_a.prj"
+# set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
+# set_property -name "scoped_to_cells" -value "git_vivado_demo_bd_mig_7series_0_0" -objects $file_obj
 
+# # Set 'sources_1' fileset properties
+# set obj [get_filesets sources_1]
+# set_property -name "top" -value "git_vivado_demo_bd_wrapper" -objects $obj
 
-# Set 'sources_1' fileset properties
-set obj [get_filesets sources_1]
-set_property -name "top" -value "git_vivado_demo_bd_wrapper" -objects $obj
+# create block design
+source $origin_dir/src/bd/git_vivado_demo_bd.tcl
+
+# create wrapper
+make_wrapper -files [get_files $design_name.bd] -top -import
 
 # Create 'constrs_1' fileset (if not found)
 if {[string equal [get_filesets -quiet constrs_1] ""]} {
@@ -168,20 +155,25 @@ if {[string equal [get_filesets -quiet constrs_1] ""]} {
 # Set 'constrs_1' fileset object
 set obj [get_filesets constrs_1]
 
-# Add/Import constrs file and set constrs file properties
-set file "[file normalize "$origin_dir/src/constrs/pins.xdc"]"
-set file_added [add_files -norecurse -fileset $obj [list $file]]
-set file "$origin_dir/src/constrs/pins.xdc"
-set file [file normalize $file]
-set file_obj [get_files -of_objects [get_filesets constrs_1] [list "*$file"]]
-set_property -name "file_type" -value "XDC" -objects $file_obj
+# # Add/Import constrs file and set constrs file properties
+# set file "[file normalize "$origin_dir/src/constrs/pins.xdc"]"
+# set file_added [add_files -norecurse -fileset $obj [list $file]]
+# set file "$origin_dir/src/constrs/pins.xdc"
+# set file [file normalize $file]
+# set file_obj [get_files -of_objects [get_filesets constrs_1] [list "*$file"]]
+# set_property -name "file_type" -value "XDC" -objects $file_obj
 
-# Add/Import constrs file and set constrs file properties
-set file "[file normalize "$origin_dir/src/constrs/timing.xdc"]"
-set file_added [add_files -norecurse -fileset $obj [list $file]]
-set file "$origin_dir/src/constrs/timing.xdc"
-set file [file normalize $file]
-set file_obj [get_files -of_objects [get_filesets constrs_1] [list "*$file"]]
+# # Add/Import constrs file and set constrs file properties
+# set file "[file normalize "$origin_dir/src/constrs/timing.xdc"]"
+# set file_added [add_files -norecurse -fileset $obj [list $file]]
+# set file "$origin_dir/src/constrs/timing.xdc"
+# set file [file normalize $file]
+# set file_obj [get_files -of_objects [get_filesets constrs_1] [list "*$file"]]
+# set_property -name "file_type" -value "XDC" -objects $file_obj
+
+# add constrain files
+add_files -fileset constrs_1 $origin_dir/src/constrs
+set file_obj [get_files -of_objects [get_filesets constrs_1]]
 set_property -name "file_type" -value "XDC" -objects $file_obj
 
 # Set 'constrs_1' fileset properties

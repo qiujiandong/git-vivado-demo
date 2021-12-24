@@ -1,1 +1,4 @@
 git_vivado_demo
+*.jou
+*.log
+.Xil
